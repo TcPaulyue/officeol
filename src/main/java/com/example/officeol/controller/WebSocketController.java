@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.logging.Logger;
+
 @CrossOrigin
 @Controller
 public class WebSocketController {
@@ -37,9 +39,9 @@ public class WebSocketController {
        try{
            model.addAttribute("userId",userId);
            model.addAttribute("fileId",fileId);
-            return "websocket";
+           return "websocket";
        }catch (Exception e){
-           //logger.info("跳转到websocket的页面上发生异常，异常信息是："+e.getMessage());
+           e.printStackTrace();
            return "error";
 
 

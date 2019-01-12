@@ -7,11 +7,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class Word {
     private String WordId;
 
-    //public CopyOnWriteArraySet<WebSocket> webSockets=new CopyOnWriteArraySet<>();
+    private CopyOnWriteArraySet<User> users=new CopyOnWriteArraySet<>();
 
-    public CopyOnWriteArraySet<User> users=new CopyOnWriteArraySet<>();
-
-    public Message messageset=new Message();
+    private Message messageset=new Message();
 
     public Word(String WordId){
         this.WordId=WordId;

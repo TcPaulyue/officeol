@@ -19,18 +19,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
     @ServerEndpoint(value = "/websocket/{userId}/{fileId}")
     @Component
     public class WebSocket {
-        //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
-        private static int onlineCount = 0;
-        //concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。
-        private static CopyOnWriteArraySet<WebSocket> webSocketSet = new CopyOnWriteArraySet<WebSocket>();
 
         private Session session;
 
         public WordFile wordFile=new WordFile();
         //public static HashMap<String,String> SheetForUser=new HashMap<String, String>();
 
+        //存放所有的word类型的文档信息，包括该文档的所有用户和所有指令
         public static ArrayList<Word> wordFiles=new ArrayList<>();
 
+        //文档Id和websockets的对应，用以进行分组广播的操作
         public static HashMap<String,CopyOnWriteArraySet<WebSocket>> FileToWebsocket=new HashMap<String, CopyOnWriteArraySet<WebSocket>>();
 
         //public static HashMap<String,CopyOnWriteArraySet<User>> UserForSheet=new HashMap<String, CopyOnWriteArraySet<User>>();
@@ -40,33 +38,28 @@ import java.util.concurrent.CopyOnWriteArraySet;
         @OnOpen
         public void onOpen( Session session) {
             this.session = session;
-            webSocketSet.add(this);     //加入set中
-            System.out.println("url是:"+session.getRequestURI());
+            //webSocketSet.add(this);     //加入set中
+            //System.out.println("url是:"+session.getRequestURI());
             String userId=this.getUser(session);
             String fileId=this.getfileId(session);
-            if(this.findFile(fileId)==null) {
+            if(this.findFile(fileId)==null) {//open a new file
                 addNewFile(fileId,userId);
             }
-            else if(findUser(fileId,userId)==false){
+            else if(findUser(fileId,userId)==false){//a new user join a existed file
                 addNewUser(fileId,userId);
             }
-            FileToWebsocket.get(fileId).add(this);
+            else {
+                FileToWebsocket.get(fileId).add(this);
+            }
             display();
-            addOnlineCount();           //在
-            //JSONObject jsonObject= JSON.parseObject(message);
-            //String sheetId=jsonObject.getString(message);
-            //if(this.findKeySheet(sheetId)==null){
-
-            //}
-            System.out.println("有新连接加入！线数加1当前在线人数为" + getOnlineCount());
-            System.out.println(session.toString());
+            //System.out.println("有新连接加入！线数加1当前在线人数为"+FileToWebsocket.get(fileId).size());
+            System.out.println(fileId+":有新连接加入！当前在线人数为" + getOnlineCount(fileId));
         }
 
         @OnClose
         public void onClose() {
-            webSocketSet.remove(this);  //从set中删除
-            subOnlineCount();           //在线数减1
-            System.out.println("有一连接关闭！当前在线人数为" + getOnlineCount());
+            FileToWebsocket.get(this.getfileId(session)).remove(this);
+            System.out.println(this.getfileId(session)+":有一连接关闭！当前在线人数为"+getOnlineCount(this.getfileId(session)));
         }
 
         @OnError
@@ -74,11 +67,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
             System.out.println("发生错误");
             error.printStackTrace();
         }
-
-        public void sendMessage(String message) throws IOException {
-            this.session.getBasicRemote().sendText(message);
-        }
-
 
         @OnMessage
         public void onMessage(String message, Session session) throws Exception{
@@ -89,65 +77,73 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 String fileId=jsonObject.getString("fileId");
                 String userId=jsonObject.getString("userId");
                 String textMessage=jsonObject.getString("message");
-                ContentBlock contentBlock=JSONObject.toJavaObject(JSON.parseObject(textMessage),ContentBlock.class);
-                //myMessage.addMessage(contentBlock);
-                findFile(fileId).messageset.addMessage(contentBlock);
+                ContentBlock contentBlock=null;
+                try{
+                    contentBlock=JSONObject.toJavaObject(JSON.parseObject(textMessage),ContentBlock.class);
+                    //myMessage.addMessage(contentBlock);
+                    findFile(fileId).getMessageset().addMessage(contentBlock);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println("message格式错误");
+                }
                 Map<String,Object> map1 = new HashMap<String, Object>();
                 map1.put("userId",userId);
                 //map1.put("textMessage",textMessage);
                 map1.put("textMessage",contentBlock);
-                //群发消息
-                for(WebSocket webSocket:FileToWebsocket.get(fileId)){
-                    try {
-                        webSocket.sendMessage(JSON.toJSONString(map1));
-                    }catch (IOException e){
-                        e.printStackTrace();
-                    }
-
-                }
-/*                for (User item : UserForWord.get(fileId)) {
-                    try {
-                        item.webSocket.sendMessage(JSON.toJSONString(map1));
-                        //item.sendMessage(JSON.toJSONString(map1));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }*/
+                this.sendMessagetoothers(fileId,JSON.toJSONString(map1));
+                //this.sendMessagetoAll(fileId,JSON.toJSONString(map1));
             }
         }
-
-        public static void sendInfo(String message) throws Exception{
-            for (WebSocket item : webSocketSet) {
+        /*
+        * 群发消息
+        * */
+        public void sendMessagetoAll(String fileId,String message)throws IOException{
+            for(WebSocket webSocket:FileToWebsocket.get(fileId)){
                 try {
-                    item.sendMessage(message);
-                } catch (IOException e) {
-                    continue;
+                    webSocket.sendMessage(message);
+                }catch (IOException e){
+                    e.printStackTrace();
                 }
             }
         }
-
-        public static synchronized int getOnlineCount() {
-            return onlineCount;
+        /*
+        * 消息发给除自己之外的所有人
+        * */
+        public void sendMessagetoothers(String fileId,String message)throws IOException{
+            for(WebSocket webSocket:FileToWebsocket.get(fileId)){
+                if(webSocket.equals(this)==false)
+                try {
+                    webSocket.sendMessage(message);
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }
+        public void sendMessage(String message) throws IOException {
+            this.session.getBasicRemote().sendText(message);
+        }
+        /*
+        * compute user numbers
+        * */
+        public static synchronized int getOnlineCount(String fileId) {
+            return FileToWebsocket.get(fileId).size();
         }
 
-        public static synchronized void addOnlineCount() {
-            WebSocket.onlineCount++;
-        }
-
-        public static synchronized void subOnlineCount() {
-            WebSocket.onlineCount--;
-        }
-
+        /*
+        * get userId from session.url
+        * */
         public String getUser(Session session){
             String url=session.getRequestURI().toString();
-            System.out.println("000"+url);
+            //System.out.println("000"+url);
             int i=url.lastIndexOf('/');
             url=url.substring(0,i);
             i=url.lastIndexOf('/');
             System.out.println("url:user:"+url.substring(i+1));
             return url.substring(i+1);
         }
-
+        /*
+         *get fileId from session.url
+          *  */
         public String getfileId(Session session){
             String url=session.getRequestURI().toString();
             System.out.println("111"+url);
@@ -156,6 +152,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
             return url.substring(i+1);
         }
 
+        /*
+        * file existed or not
+        * */
         public Word findFile(String fileId){
             for(Word word:wordFiles){
                 if(word.getWordId().equals(fileId)){
@@ -165,33 +164,45 @@ import java.util.concurrent.CopyOnWriteArraySet;
             return null;
         }
 
+        /*
+        * add a new file in the FileToWebsocket
+        * */
         public void addNewFile(String fileId,String userId){
             Word word=new Word(fileId);
-            word.users.add(new User(userId));
+            word.getUsers().add(new User(userId));
             wordFiles.add(word);
             CopyOnWriteArraySet<WebSocket> webSockets=new CopyOnWriteArraySet<>();
             webSockets.add(this);
             FileToWebsocket.put(fileId,webSockets);
         }
-
+        /*
+        * find user in the existed file
+        * */
        public boolean findUser(String fileId,String userId){
             if(findFile(fileId)!=null){
                 Word item=findFile(fileId);
-                for(User user:item.users){
+                for(User user:item.getUsers()){
                     if(user.getId().equals(userId))
                         return true;
                 }
             }
             return false;
         }
+        /*
+        * add a new user in the existed file
+        * */
         public void addNewUser(String fileId,String userId){
             User user=new User(userId);
-            findFile(fileId).users.add(user);
+            findFile(fileId).getUsers().add(user);
+            FileToWebsocket.get(fileId).add(this);
         }
+        /*
+        * show FileToWebsocket
+        * */
         public void display(){
             System.out.println("display:");
             for(Word word:wordFiles){
-                System.out.println("fileId:"+word.getWordId()+"   userIds:"+word.getUsers()+"     messages:"+word.messageset);
+                System.out.println("fileId:"+word.getWordId()+"   userIds:"+word.getUsers()+"     messages:"+word.getMessageset());
                 for(User user:word.getUsers()){
                     System.out.println(user.getId());
                 }

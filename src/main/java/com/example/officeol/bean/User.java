@@ -5,7 +5,7 @@ import com.example.officeol.service.WebSocket;
 public class User {
     private String id;
 
-    public String name;
+    private String name;
 
 
     public User(String userId)

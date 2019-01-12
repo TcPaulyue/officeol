@@ -1,8 +1,5 @@
 package com.example.officeol.bean;
 
-import org.springframework.context.annotation.Bean;
-
-import java.util.Map;
 import java.util.Stack;
 
 public class Message {
