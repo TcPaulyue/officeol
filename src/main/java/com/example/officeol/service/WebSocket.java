@@ -89,12 +89,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
                 String fileId=jsonObject.getString("fileId");
                 String userId=jsonObject.getString("userId");
                 String textMessage=jsonObject.getString("message");
-                //ContentBlock contentBlock=JSONObject.toJavaObject(JSON.parseObject(textMessage),ContentBlock.class);
+                ContentBlock contentBlock=JSONObject.toJavaObject(JSON.parseObject(textMessage),ContentBlock.class);
                 //myMessage.addMessage(contentBlock);
+                findFile(fileId).messageset.addMessage(contentBlock);
                 Map<String,Object> map1 = new HashMap<String, Object>();
                 map1.put("userId",userId);
-                map1.put("textMessage",textMessage);
-                //map1.put("textMessage",contentBlock);
+                //map1.put("textMessage",textMessage);
+                map1.put("textMessage",contentBlock);
                 //群发消息
                 for(WebSocket webSocket:FileToWebsocket.get(fileId)){
                     try {
