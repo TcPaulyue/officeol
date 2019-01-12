@@ -11,7 +11,7 @@ public class Word {
 
     public CopyOnWriteArraySet<User> users=new CopyOnWriteArraySet<>();
 
-    public Message messageset;
+    public Message messageset=new Message();
 
     public Word(String WordId){
         this.WordId=WordId;
