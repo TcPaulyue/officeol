@@ -1,2 +1,2 @@
 # officeol
-Server of web online edit program
+Server of a multiply web online edit program based on springboot&webSocket
