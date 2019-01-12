@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Spring Boot+WebSocket+广播式</title>
+</head>
+<body>
+<noscript><h2 style="color: #ff0000">貌似你的浏览器不支持websocket</h2></noscript>
+<div>
+
+    <div id="conversationDiv">
+        <label>电子表格ID   </label><input type="text" id="sheetId" /><button id="sheetIdButton" onclick="sendName();">发送</button><br/>
+        <label>用户ID       </label><input type="text" id="userId" /><button id="userIdButtom" onclick="sendName();">发送</button><br/>
+        <label>operation    </label><input type="text" id="name" onkeyup="sendName()"/>
+        <!--<textarea id="sendName" oninput="sendName();" name="发送"></textarea>-->
+        <!--<button id="sendName" oninput="sendName();">发送</button>-->
+        <p id="response"></p>
+    </div>
+</div>
+<script th:src="@{sockjs.min.js}"></script>
+<script th:src="@{stomp.min.js}"></script>
+<script th:src="@{jquery.js}"></script>
+<script type="text/javascript">
+    var stompClient = null;
+
+    function setConnected(connected) {
+        document.getElementById('connect').disabled = connected;
+        document.getElementById('disconnect').disabled = !connected;
+        document.getElementById('conversationDiv').style.visibility = connected ? 'visible' : 'hidden';
+        $('#response').html();
+    }
+
+    function connect() {
+        var socket = new SockJS('/endpointWisely'); //链接SockJS 的endpoint 名称为"/endpointWisely"
+        stompClient = Stomp.over(socket);//使用stomp子协议的WebSocket 客户端
+        stompClient.connect({}, function(frame) {//链接Web Socket的服务端。
+            setConnected(true);
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/getResponse', function(respnose){ //订阅/topic/getResponse 目标发送的消息。这个是在控制器的@SendTo中定义的。
+                showResponse(JSON.parse(respnose.body).responseMessage);
+            });
+        });
+    }
+
+
+    function disconnect() {
+        if (stompClient != null) {
+            stompClient.disconnect();
+        }
+        setConnected(false);
+        console.log("Disconnected");
+    }
+
+    function sendName() {
+        var name = $('#name').val();
+        var url='12345678';
+        var sheetId=$('#sheetId').val();
+        var userId=$('#userId').val();
+        //console.log(name);
+        //通过stompClient.send 向/welcome 目标 发送消息,这个是在控制器的@messageMapping 中定义的。
+        stompClient.send("/welcome", {}, JSON.stringify({ 'operation': name,'url':url ,'sheetId':sheetId,'userId':userId}));
+    }
+
+    function showResponse(message) {
+        var response = $("#response");
+        response.html(message);
+        console.log('message: ' + message);
+        document.getElementById("sheetId").value = JSON.parse(message).sheetId;
+        document.getElementById("userId").value = JSON.parse(message).userId;
+        document.getElementById("name").value = JSON.parse(message).operation;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>websocket</title>
+</head>
+<!--<script th:src="@{sockjs.min.js}"></script>
+<script th:src="@{stomp.min.js}"></script>
+<script th:src="@{jquery.js}"></script>-->
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.min.js"></script>
+<script src="http://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="https://cdn.bootcss.com/sockjs-client/1.1.4/sockjs.min.js"></script>
+<body>
+<div style="margin: auto;text-align: center">
+    <h1>Welcome to websocket</h1>
+</div>
+
+<div style="margin: auto;text-align: center">
+    <select id="onLineUser">
+        <option>--所有--</option>
+    </select>
+    <input id="text" type="text" />
+    <button onclick="send()">发送消息</button>
+</div>
+<div style="margin-right: 10px;text-align: right">
+    <button onclick="closeWebSocket()">关闭连接</button>
+</div>
+<div id="message" style="text-align: center;"></div>
+<input  type="text" th:value="${userId}" id="userId" style="display: none" />
+<input  type="text" th:value="${fileId}" id="fileId" style="display: none" />
+</body>
+<script type="text/javascript">
+    var webSocket;
+    if ("WebSocket" in window)
+    {
+        webSocket = new WebSocket("ws://localhost:8080/websocket/"+document.getElementById('userId').value+"/"+document.getElementById('fileId').value);
+//        webSocket = new WebSocket("ws://localhost:8080/websocket/user0/file1")
+        //连接发生错误的回调方法
+        webSocket.onerror = function(){
+            setMessageInnerHTML("系统","error");
+        };
+        //连通之后的回调事件
+        webSocket.onopen = function()
+        {
+            //webSocket.send( document.getElementById('username').value+"已经上线了");
+            console.log("已经连通了websocket");
+            setMessageInnerHTML("已经连通了websocket");
+        };
+        //接收后台服务端的消息
+        webSocket.onmessage = function (evt)
+        {
+            var received_msg = evt.data;
+            console.log("数据已接收:" +received_msg);
+            var obj = JSON.parse(received_msg);
+            console.log("可以解析成json:"+obj.messageType);
+        };
+
+        //连接关闭的回调事件
+        webSocket.onclose = function()
+        {
+            console.log("连接已关闭...");
+            setMessageInnerHTML("连接已经关闭....");
+        };
+    }
+    else{
+        // 浏览器不支持 WebSocket
+        alert("您的浏览器不支持 WebSocket!");
+    }
+    //将消息显示在网页上
+    function setMessageInnerHTML(innerHTML) {
+        document.getElementById('message').innerHTML += innerHTML + '<br/>';
+    }
+
+    function closeWebSocket() {
+        //直接关闭websocket的连接
+        webSocket.close();
+    }
+    function send() {
+        var selectText = $("#onLineUser").find("option:selected").text();
+        if(selectText=="--所有--"){
+            selectText = "All";
+        }
+        else{
+            setMessageInnerHTML(document.getElementById('username').value+"对"+selectText+"说："+ $("#text").val());
+        }
+        var message = {
+            "fileType":"word",
+            "fileId":document.getElementById('fileId').value,
+            "userId":document.getElementById('userId').value,
+            "message":document.getElementById('text').value,
+            //"username":document.getElementById('username').value,
+            //"to":selectText
+        };
+        webSocket.send(JSON.stringify(message));
+        $("#text").val("");
+    }
+</script>
+</html>
