@@ -73,26 +73,30 @@ import java.util.concurrent.CopyOnWriteArraySet;
             System.out.println("来自客户端的消息:" + message);
             JSONObject jsonObject= JSON.parseObject(message);
             String fileType=jsonObject.getString("fileType");
-            if(fileType.equals("word")){
-                String fileId=jsonObject.getString("fileId");
-                String userId=jsonObject.getString("userId");
-                String textMessage=jsonObject.getString("message");
-                ContentBlock contentBlock=null;
-                try{
-                    contentBlock=JSONObject.toJavaObject(JSON.parseObject(textMessage),ContentBlock.class);
-                    //myMessage.addMessage(contentBlock);
-                    findFile(fileId).getMessageset().addMessage(contentBlock);
-                }catch (Exception e){
-                    e.printStackTrace();
-                    System.out.println("message格式错误");
-                }
-                Map<String,Object> map1 = new HashMap<String, Object>();
-                map1.put("userId",userId);
-                //map1.put("textMessage",textMessage);
-                map1.put("textMessage",contentBlock);
-                this.sendMessagetoothers(fileId,JSON.toJSONString(map1));
-                //this.sendMessagetoAll(fileId,JSON.toJSONString(map1));
-            }
+            switch(fileType){
+                case"word":
+                    String fileId=jsonObject.getString("fileId");
+                    String userId=jsonObject.getString("userId");
+                    String textMessage=jsonObject.getString("message");
+                    ContentBlock contentBlock=null;
+                    try{
+                        contentBlock=JSONObject.toJavaObject(JSON.parseObject(textMessage),ContentBlock.class);
+                        //myMessage.addMessage(contentBlock);
+                        findFile(fileId).getMessageset().addMessage(contentBlock);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        System.out.println("message格式错误");
+                    }
+                    Map<String,Object> map1 = new HashMap<String, Object>();
+                    map1.put("userId",userId);
+                    //map1.put("textMessage",textMessage);
+                    map1.put("textMessage",contentBlock);
+                    //this.sendMessagetoothers(fileId,JSON.toJSONString(map1));
+                    this.sendMessagetoAll(fileId,JSON.toJSONString(map1));
+                    break;
+                case "sheet":
+                    break;
+             }
         }
         /*
         * 群发消息
