@@ -45,12 +45,24 @@ import java.util.concurrent.CopyOnWriteArraySet;
             }
             else if(findUser(fileId,userId)==false){//a new user join a existed file
                 addNewUser(fileId,userId);
-                for(String message:findFile(fileId).getStringMessage())//执行该文档之前所有指令
-                    this.sendMessage(message);
+                Map<String,Object> map = new HashMap<String, Object>();
+                map.put("Type","addUser");
+                map.put("userId",userId);
+                ArrayList<String> messages=new ArrayList<>();
+                for(String message:findFile(fileId).getStringMessage())//重载
+                    messages.add(message);
+                map.put("textMessage",messages);
+                this.sendMessage(JSON.toJSONString(map));
             }
             else {
+                Map<String,Object> map = new HashMap<String, Object>();
+                map.put("Type","open");
+                map.put("userId",userId);
+                ArrayList<String> messages=new ArrayList<>();
                 for(String message:findFile(fileId).getStringMessage())//重载
-                    this.sendMessage(message);
+                    messages.add(message);
+                map.put("textMessage",messages);
+                this.sendMessage(JSON.toJSONString(map));
                 FileToWebsocket.get(fileId).add(this);
             }
             display();
@@ -91,6 +103,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
                         System.out.println("message格式错误");
                     }
                     Map<String,Object> map1 = new HashMap<String, Object>();
+                    map1.put("type","notify");
                     map1.put("userId",userId);
                     map1.put("textMessage",textMessage);
                     //map1.put("textMessage",contentBlock);
