@@ -2,7 +2,6 @@ package com.example.officeol.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-//import com.example.officeol.bean.Sheet;
 import com.example.officeol.bean.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
         private Session session;
 
         public WordFile wordFile=new WordFile();
-        //public static HashMap<String,String> SheetForUser=new HashMap<String, String>();
 
         //存放所有的word类型的文档信息，包括该文档的所有用户和所有指令
         public static ArrayList<Word> wordFiles=new ArrayList<>();
@@ -36,7 +34,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
         //public static HashMap<String,CopyOnWriteArraySet<User>> UserForWord=new HashMap<String, CopyOnWriteArraySet<User>>();
 
         @OnOpen
-        public void onOpen( Session session) {
+        public void onOpen( Session session)throws Exception {
             this.session = session;
             //webSocketSet.add(this);     //加入set中
             //System.out.println("url是:"+session.getRequestURI());
@@ -47,8 +45,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
             }
             else if(findUser(fileId,userId)==false){//a new user join a existed file
                 addNewUser(fileId,userId);
+                for(String message:findFile(fileId).getStringMessage())//执行该文档之前所有指令
+                    this.sendMessage(message);
             }
             else {
+                for(String message:findFile(fileId).getStringMessage())//重载
+                    this.sendMessage(message);
                 FileToWebsocket.get(fileId).add(this);
             }
             display();
@@ -78,19 +80,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
                     String fileId=jsonObject.getString("fileId");
                     String userId=jsonObject.getString("userId");
                     String textMessage=jsonObject.getString("message");
-                    ContentBlock contentBlock=null;
+                    //ContentBlock contentBlock=null;
                     try{
-                        contentBlock=JSONObject.toJavaObject(JSON.parseObject(textMessage),ContentBlock.class);
+                        //contentBlock=JSONObject.toJavaObject(JSON.parseObject(textMessage),ContentBlock.class);
                         //myMessage.addMessage(contentBlock);
-                        findFile(fileId).getMessageset().addMessage(contentBlock);
+                        //findFile(fileId).getMessageset().addMessage(contentBlock);
+                        findFile(fileId).getStringMessage().add(textMessage);
                     }catch (Exception e){
                         e.printStackTrace();
                         System.out.println("message格式错误");
                     }
                     Map<String,Object> map1 = new HashMap<String, Object>();
                     map1.put("userId",userId);
-                    //map1.put("textMessage",textMessage);
-                    map1.put("textMessage",contentBlock);
+                    map1.put("textMessage",textMessage);
+                    //map1.put("textMessage",contentBlock);
                     //this.sendMessagetoothers(fileId,JSON.toJSONString(map1));
                     this.sendMessagetoAll(fileId,JSON.toJSONString(map1));
                     break;
