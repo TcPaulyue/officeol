@@ -1,39 +1,17 @@
 package com.example.officeol.controller;
 
-import com.example.officeol.bean.Message;
-import com.example.officeol.bean.Response;
 //import com.example.officeol.service.MyWebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.util.logging.Logger;
+import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
-@Controller
+@RestController
 public class WebSocketController {
-//    @Autowired
-//    //private WebSocketService ws;
-//    private MyWebSocket ws;
-//    @Autowired
-//    private SimpMessagingTemplate messagingTemplate;
-//
-//    @RequestMapping(value = "/ws")
-//    public String ws() {
-//        return "ws";
-//    }
-
-    /*    @RequestMapping(value = "/websocket/{username}")
-        public String websocket(@PathVariable("username") String username){
-            return "websocket"+username;
-        }*/
     @RequestMapping(value = "/websocket/{userId}/{fileId}")
     public String websocket(@PathVariable("userId") String userId, @PathVariable("fileId") String fileId, Model model) {
        try{
@@ -43,8 +21,6 @@ public class WebSocketController {
        }catch (Exception e){
            e.printStackTrace();
            return "error";
-
-
        }
     }
 
