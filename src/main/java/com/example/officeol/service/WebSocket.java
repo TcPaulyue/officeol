@@ -3,6 +3,7 @@ package com.example.officeol.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.example.officeol.bean.*;
+//import com.example.officeol.repository.UserRepository;
 import com.example.officeol.repository.UserRepository;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,11 +52,11 @@ public class WebSocket {
             map.put("mType","onOpen");
             ArrayList<String> messages=new ArrayList<>();
             for(String message:wordFile.getWord(fileId).contents)//重载
-                messages.add(message);
+               messages.add(message);
             map.put("message",messages);
             this.sendMessage(JSON.toJSONString(map));
-            User user = new User(userId);
-            userRepository.save(user);
+            //User user = new User(userId);
+            //userRepository.save(user);
         }
         else if(wordFile.findUserOnOpen(fileId,userId)==false){//a new user join a existed file
             User user=new User(userId);
@@ -73,20 +74,20 @@ public class WebSocket {
             FileToWebsocket.get(fileId).add(this);
         }
         else {//no new file,no new user
-            Map<String,Object> map = new HashMap<String, Object>();
-            map.put("userId",userId);
-            map.put("mType","onOpen");
-            ArrayList<String> messages=new ArrayList<>();
-            for(String message:wordFile.getWord(fileId).contents)
+            //Map<String,Object> map = new HashMap<String, Object>();
+            //map.put("userId",userId);
+            //map.put("mType","onOpen");
+            //ArrayList<String> messages=new ArrayList<>();
+           // for(String message:wordFile.getWord(fileId).contents)
                 // for(String message:findFile(fileId).getStringMessage())//重载
-                messages.add(message);
-            map.put("message",messages);
-            this.sendMessage(JSON.toJSONString(map));
+             //   messages.add(message);
+            //map.put("message",messages);
+           // this.sendMessage(JSON.toJSONString(map));
             FileToWebsocket.get(fileId).add(this);
             System.out.println("文档"+fileId+"有新的消息！！！");
         }
-        display();
-        System.out.println("文件"+fileId+":当前在线人数为" + getOnlineCount(fileId));
+        //display();
+       // System.out.println("文件"+fileId+":当前在线人数为" + getOnlineCount(fileId));
     }
 
     @OnClose
@@ -104,7 +105,7 @@ public class WebSocket {
 
     @OnMessage
     public void onMessage(String message, Session session) throws Exception{
-        System.out.println("来自客户端的消息:" + message);
+        System.out.println("来自"+session.getId()+"客户端的消息:" + message);
         JSONObject jsonObject= JSON.parseObject(message);
         String fileType=jsonObject.getString("fileType");
         switch(fileType){
@@ -118,6 +119,7 @@ public class WebSocket {
                     Ops ops=new Ops(fileId,userId,textMessage,fileType);
                     wordFile.getWord(ops.getFileId()).contents.clear();
                     wordFile.getWord(ops.getFileId()).contents.add(ops.getMessage());
+                    FileToWebsocket.get(ops.getFileId()).add(this);
                     //for(String content:wordFile.getWord(ops.getFileId()).contents)
                       //  System.out.println(content);
                 }
@@ -125,18 +127,18 @@ public class WebSocket {
                     try{
                         Ops ops=new Ops(fileId,userId,textMessage,fileType);
                         wordFile.getWord(ops.getFileId()).addContents(ops.getMessage());
-                        for(String content:wordFile.getWord(ops.getFileId()).contents)
-                            System.out.println(content);
+                        //for(String content:wordFile.getWord(ops.getFileId()).contents)
+                          //  System.out.println(content);
                         FileToWebsocket.get(ops.getFileId()).add(this);
-                    }catch (Exception e){
+                        Map<String,Object> map1 = new HashMap<String, Object>();
+                        map1.put("userId",userId);
+                        map1.put("message",textMessage);
+                        this.sendMessagetoAll(fileId,JSON.toJSONString(map1));
+                        break;
+                    }catch (Exception e) {
                         e.printStackTrace();
                         System.out.println("message格式错误");
                     }
-                    Map<String,Object> map1 = new HashMap<String, Object>();
-                    map1.put("userId",userId);
-                    map1.put("message",textMessage);
-                    this.sendMessagetoAll(fileId,JSON.toJSONString(map1));
-                    break;
                 }
             case "sheet":
                 break;
@@ -146,13 +148,17 @@ public class WebSocket {
     * 群发消息
     * */
     public void sendMessagetoAll(String fileId,String message)throws IOException{
+        int count=0;
         for(WebSocket webSocket:FileToWebsocket.get(fileId)){
             try {
+               // System.out.println("用户"+webSocket.getUser(session));
                 webSocket.sendMessage(message);
-            }catch (IOException e){
+                count++;
+            }catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println("发送给用户的个数为"+count);
     }
     /*
     * 消息发给除自己之外的所有人
@@ -187,7 +193,7 @@ public class WebSocket {
         int i=url.lastIndexOf('/');
         url=url.substring(0,i);
         i=url.lastIndexOf('/');
-        System.out.println("url:user:"+url.substring(i+1));
+        //System.out.println("url:user:"+url.substring(i+1));
         return url.substring(i+1);
     }
     /*
@@ -195,9 +201,9 @@ public class WebSocket {
       *  */
     public String getfileId(Session session){
         String url=session.getRequestURI().toString();
-        System.out.println("111"+url);
+        //System.out.println("111"+url);
         int i=url.lastIndexOf('/');
-        System.out.println("url:file:"+url.substring(i+1));
+        //System.out.println("url:file:"+url.substring(i+1));
         return url.substring(i+1);
     }
     /*

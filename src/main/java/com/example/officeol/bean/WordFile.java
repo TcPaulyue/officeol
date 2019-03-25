@@ -24,7 +24,9 @@ public class WordFile {
     public Boolean findWordOnOpen(String fileId)
     {
         for(NewWord word:WordFiles) {
-            if(word.fileId==fileId) {
+            //System.out.println(word.fileId);
+            if(word.fileId.equals(fileId)) {
+                //System.out.println("find key fileId");
                 return true;
             }
         }
@@ -34,9 +36,9 @@ public class WordFile {
     {
         if(findWordOnOpen(fileId)==true) {
             for(NewWord word:WordFiles) {
-                if(word.fileId==fileId) {
+                if(word.fileId.equals(fileId)) {
                     for(User user:word.users) {
-                        if(user.getId()==UserId)
+                        if(user.getId().equals(UserId))
                             return true;
                     }
                 }
