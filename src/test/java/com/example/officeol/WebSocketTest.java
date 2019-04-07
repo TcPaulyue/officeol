@@ -1,20 +1,10 @@
 package com.example.officeol;
 
-import com.alibaba.fastjson.JSONObject;
 import com.example.officeol.bean.Message;
-import com.example.officeol.bean.Ops;
-import com.example.officeol.config.FileToWebsocket;
-import com.example.officeol.service.WebSocket;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.concurrent.CopyOnWriteArraySet;
-
-import static com.example.officeol.config.FileToWebsocket.fileToWebsocket;
 import static com.example.officeol.config.JupiterList.jupiterWordList;
 
 @RunWith(SpringJUnit4ClassRunner.class)

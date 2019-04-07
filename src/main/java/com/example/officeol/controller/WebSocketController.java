@@ -1,6 +1,4 @@
 package com.example.officeol.controller;
-
-//import com.example.officeol.service.MyWebSocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,22 +21,5 @@ public class WebSocketController {
            return "error";
        }
     }
-
-    //http://localhost:8080/ws
-  //  @MessageMapping("/welcome")//浏览器发送请求通过@messageMapping 映射/welcome 这个地址。
-    //服务器端有消息时,会订阅@SendTo 中的路径的浏览器发送消息。
-//    @SendTo("/topic/getResponse")
-//    public Response say(Message message) throws Exception {
-//        Thread.sleep(100);
-//        if (ws.findKeySheet(message) == null) {
-//            ws.addNewSheet(message);
-//        }
-//        if (ws.findKeyUser(message) == null) {
-//            ws.addNewUser(message);
-//        }
-//        ws.normalOperation(message);
-//        ws.display();
-//        return ws.sendMessage(message);
-//    }
 }
 
