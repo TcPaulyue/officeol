@@ -43,28 +43,10 @@
 		<artifactId>spring-boot-starter</artifactId>
 	</dependency>
 
-	<!-- 测试模块，包括JUnit、Hamcrest、Mockito -->
-	<dependency>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-test</artifactId>
-		<scope>test</scope>
-	</dependency>
 
 	<dependency>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-thymeleaf</artifactId>
-	</dependency>
-
-	<!-- 引入Web模块 -->
-	<dependency>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-web</artifactId>
-	</dependency>
-
-	<!-- SpringWebSocket依赖 -->
-	<dependency>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-websocket</artifactId>
 	</dependency>
 
 	<!-- 引入security模块 -->
@@ -100,8 +82,7 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1-b07</version>
 		</dependency>
-
-		<!-- 数据库 -->
+		s
 	</dependencies>
 
 	<build>
