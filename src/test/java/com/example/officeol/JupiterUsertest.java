@@ -5,13 +5,10 @@ import com.example.officeol.bean.JupiterWord;
 import com.example.officeol.bean.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
-//@SpringBootTest(classes = OfficeolApplication.class)
-//@Transactional
 public class JupiterUsertest {
     public Message message;
     public Message mymessage;
