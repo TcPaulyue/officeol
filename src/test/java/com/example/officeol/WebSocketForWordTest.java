@@ -8,7 +8,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.example.officeol.config.JupiterList.jupiterWordList;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class WebSocketTest {
+public class WebSocketForWordTest {
     public Message message;
     public Message message1;
     public Message message2;

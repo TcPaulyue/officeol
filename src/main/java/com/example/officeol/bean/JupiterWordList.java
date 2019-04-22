@@ -2,7 +2,7 @@ package com.example.officeol.bean;
 
 import java.util.ArrayList;
 
-public class JupiterWordList {
+public class JupiterWordList extends File{
     public ArrayList<JupiterWord> jupiterWordArrayList=new ArrayList<>();
     public boolean addNewJupiterWordorNot(String fileId)
     {

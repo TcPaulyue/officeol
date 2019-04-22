@@ -1,11 +1,11 @@
 package com.example.officeol.bean;
 
 import com.alibaba.fastjson.JSON;
-import com.example.officeol.service.WebSocket;
+import com.example.officeol.service.WebSocketForWord;
 
 import java.util.*;
 
-import static com.example.officeol.config.FileToWebsocket.fileToWebsocket;
+import static com.example.officeol.config.WordToWebsocket.wordToWebsocket;
 import static com.example.officeol.config.JupiterList.jupiterWordList;
 
 public class JupiterUser {
@@ -54,14 +54,14 @@ public class JupiterUser {
         else if(operation.equals("delete"))
         {
             int k=Integer.parseInt(op);
-           if(k<position){
-                String s1=txt.substring(0,position-k);
-                String s2=txt.substring(position);
+            int length=txt.substring(position).length();
+           if(k<length){
+                String s1=txt.substring(0,position);
+                String s2=txt.substring(position+k);
                 txt = s1+s2;
            }
-           else if(k==position)
-           {
-               String s1=txt.substring(position);
+           else if(k==length) {
+               String s1=txt.substring(0,position);
                txt=s1;
            }
            else
@@ -80,7 +80,6 @@ public class JupiterUser {
      //   System.out.println("-------START--------");
      //   System.out.println("userId:"+userId);
      //   System.out.println("oldState:"+newmessage.state+",newState:"+otherMsgs);
-
 
         newmessage.state=otherMsgs;
         sendMessagetoClient(newmessage,userId);
@@ -117,9 +116,9 @@ public class JupiterUser {
 
     public void sendMessagetoClient(Message message,String userId) throws Exception
     {
-        for(WebSocket webSocket:fileToWebsocket.get(message.fileId))
+        for(WebSocketForWord webSocketForWord :wordToWebsocket.get(message.fileId))
         {
-            if(webSocket.userId.equals(userId))
+            if(webSocketForWord.userId.equals(userId))
             {
                 Map<String,Object> map = new HashMap<String, Object>();
                 map.put("userId",message.userId);
@@ -128,7 +127,7 @@ public class JupiterUser {
                 map.put("message",message.getMessage());
                 map.put("operation",message.getOperation());
                 map.put("state",message.getState());
-                webSocket.sendMessage(JSON.toJSONString(map));
+                webSocketForWord.sendMessage(JSON.toJSONString(map));
 //                webSocket.sendMessage(message.toString());
  //               System.out.println("have send message to client!");
             }
