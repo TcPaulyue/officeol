@@ -55,7 +55,12 @@ public class WebSocketForWord {
                 map.put("userId","0");
                 map.put("fileId",fileId);
                 map.put("position",0);
-                map.put("message",jupiterWordList.getJupiterWord(fileId).getJupiterUser(userId).txt);
+                String message = jupiterWordList.getJupiterWord(fileId).getJupiterUser(userId).txt;
+                if(message==null) {
+                    map.put("message", "");
+                }
+                else
+                    map.put("message",message);
                 map.put("operation","insert");
                 map.put("state",0);
                 this.sendMessage(JSON.toJSONString(map));
