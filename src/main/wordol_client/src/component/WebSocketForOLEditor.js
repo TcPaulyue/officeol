@@ -2,7 +2,7 @@ class WebSocketForOLEditor{
   static createSocket(userId,fileId,handleMessage,handleStateChange){
     let webSocket;
     if("WebSocket" in window) {
-      let newUrl = "ws://nemoworks.info/word/"+userId+"/"+fileId;
+      let newUrl = "wss://word-spreedsheet.herokuapp.com/word/"+userId+"/"+fileId;
       webSocket = new WebSocket(newUrl);
       webSocket.onerror = ()=>{
         console.log("error")
