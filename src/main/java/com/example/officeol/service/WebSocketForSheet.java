@@ -56,8 +56,10 @@ public class WebSocketForSheet {
         String row=jsonObject.getString("row");
         String col=jsonObject.getString("col");
         String operation=jsonObject.getString("operation");
-        Map<String,Object> map=this.setSendMessageForm(row,col,userId,fileId,operation);
-        this.sendMessagetoAll(fileId,JSON.toJSONString(map));
+        String value=jsonObject.getString("value");
+        Map<String,Object> map=this.setSendMessageForm(row,col,userId,fileId,operation,value);
+        //this.sendMessagetoAll(fileId,JSON.toJSONString(map));
+        this.sendMessagetoAll(fileId,message);
         sheetList.getSheet(fileId).displaySheetInfo();
     }
 
@@ -80,7 +82,6 @@ public class WebSocketForSheet {
      * */
     public String getUser(Session session){
         String url=session.getRequestURI().toString();
-        //System.out.println("000"+url);
         int i=url.lastIndexOf('/');
         url=url.substring(0,i);
         i=url.lastIndexOf('/');
@@ -96,13 +97,14 @@ public class WebSocketForSheet {
         return url.substring(i+1);
     }
 
-    public Map<String,Object> setSendMessageForm(String row,String col,String userId,String fileId,String operation){
+    public Map<String,Object> setSendMessageForm(String row,String col,String userId,String fileId,String operation,String value){
         if(sheetList.getSheet(fileId).LockOrNot(row,col,userId)==true){
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("userId",userId);
             map.put("fileId",fileId);
             map.put("operation",operation);
             map.put("editable","false");
+            map.put("value",value);
             return map;
         }
         else{
@@ -114,7 +116,10 @@ public class WebSocketForSheet {
             map.put("userId",userId);
             map.put("fileId",fileId);
             map.put("operation",operation);
+            map.put("row",row);
+            map.put("col",col);
             map.put("editable","true");
+            map.put("value",value);
             return map;
         }
     }

@@ -86,6 +86,7 @@ public class WebSocketForWord {
         if(this.fileId.equals(fileId0)==false||this.userId.equals(userId0)==false) {
             System.err.println("fileId or userId doesnt pair");
         }
+        //this.sendMessagetoAll(fileId,message);
         Message newMessage=new Message(fileId,userId,position,operation,message1,state);
         jupiterWordList.getJupiterWord(fileId).getJupiterUser(userId).Receive(newMessage);
         jupiterWordList.getJupiterWord(fileId).displayDocTxt();

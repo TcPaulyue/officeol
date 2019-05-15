@@ -8,11 +8,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
-@RestController
+@Controller
 public class WebSocketController {
     @RequestMapping(value = "/websocket/{userId}/{fileId}")
     public String websocket(@PathVariable("userId") String userId, @PathVariable("fileId") String fileId, Model model) {
        try{
+           System.out.println(userId+"   "+fileId);
            model.addAttribute("userId",userId);
            model.addAttribute("fileId",fileId);
            return "websocket";

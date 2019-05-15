@@ -32,7 +32,7 @@
     var webSocket;
     if ("WebSocket" in window)
     {
-        webSocket = new WebSocket("ws://localhost:8080/websocket/"+document.getElementById('userId').value+"/"+document.getElementById('fileId').value);
+        webSocket = new WebSocket("ws://localhost:8080/websocket/user0/file1");
 //        webSocket = new WebSocket("ws://localhost:8080/websocket/user0/file1")
         //连接发生错误的回调方法
         webSocket.onerror = function(){
